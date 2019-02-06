@@ -23,13 +23,21 @@ describe('JwksClient (cache)', () => {
       });
 
       client.getSigningKey('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA', (err, key) => {
-        expect(key.kid).to.equal('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA');
-        nock.cleanAll();
-
-        client.getSigningKey('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA', (err, key) => {
+        try {
           expect(key.kid).to.equal('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA');
-          done();
-        });
+          nock.cleanAll();
+
+          client.getSigningKey('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA', (err, key) => {
+            try {
+              expect(key.kid).to.equal('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA');
+              done();
+            } catch (err) {
+              done(err);
+            }
+          });
+        } catch (err) {
+          done(err);
+        }
       });
     });
 
@@ -44,15 +52,24 @@ describe('JwksClient (cache)', () => {
       });
 
       client.getSigningKey('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA', (err, key) => {
-        expect(key.kid).to.equal('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA');
-        nock.cleanAll();
+        try {
+          expect(key.kid).to.equal('NkFCNEE1NDFDNTQ5RTQ5OTE1QzRBMjYyMzY0NEJCQTJBMjJBQkZCMA');
+          nock.cleanAll();
 
-        // This second call should fail because we "stopped the server" and this key was not cached.
-        client.getSigningKey('12345', (err) => {
-          expect(err).not.to.be.null;
-          expect(err.code).to.equal('ENOTFOUND');
-          done();
-        });
+          // This second call should fail because we "stopped the server" and this key was not cached.
+          client.getSigningKey('12345', (err, res) => {
+            try {
+              expect(res).to.not.exist;
+              expect(err).not.to.be.null;
+              expect(err.code).to.equal('ENOTFOUND');
+              done();
+            } catch (err) {
+              done(err);
+            }
+          });
+        } catch (err) {
+          done(err);
+        }
       });
     });
   });

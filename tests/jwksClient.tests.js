@@ -22,9 +22,13 @@ describe('JwksClient', () => {
       });
 
       client.getKeys((err) => {
-        expect(err).not.to.be.null;
-        expect(err.message).to.equal('Unknown Server Error');
-        done();
+        try {
+          expect(err).not.to.be.null;
+          expect(err.message).to.equal('Unknown Server Error');
+          done();
+        } catch (err) {
+          done(err);
+        }
       });
     });
 

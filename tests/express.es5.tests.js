@@ -54,7 +54,7 @@ describe('expressJwtSecret', () => {
       });
 
       const token = createSymmetricToken('mykey', { sub: 'john' });
-      middleware({ headers: { authorization: `Bearer ${token}` } }, { }, function(err) {
+      middleware({ headers: { authorization: `Bearer ${token}` } }, { }, function(err, res) {
         expect(err.code).to.equal('invalid_token');
         done();
       });
@@ -71,8 +71,12 @@ describe('expressJwtSecret', () => {
 
       const token = createToken(privateKey, null, { sub: 'john' });
       middleware({ headers: { authorization: `Bearer ${token}` } }, { }, function(err) {
-        expect(err.message).to.equal('secret or public key must be provided');
-        done();
+        try {
+          expect(err.message).to.equal('secret or public key must be provided');
+          done();
+        } catch (err) {
+          done(err);
+        }
       });
     });
 
