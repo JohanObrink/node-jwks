@@ -1,4 +1,4 @@
-declare module 'jwks-rsa' {
+declare module 'jwks-manager' {
 
   import * as ExpressJwt from "express-jwt";
 
