@@ -1,6 +1,6 @@
 {
   "name": "jwks-manager",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Library to retrieve public keys from a JWKS endpoint. This is forked from auth0/node-jwks-rsa. The idea is to extend the lib to handle reading and providing jwks keys, supporting RSA and EC as well as working with node and react-native.",
   "main": "lib/index.js",
   "types": "index.d.ts",
