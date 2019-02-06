@@ -48,14 +48,11 @@ export class JwksClient {
     }
   }
 
-  getSigningKeys(cb) {
-    this.getKeys((err, keys) => {
-      if (err) {
-        return cb(err);
-      }
-
+  async getSigningKeys(cb) {
+    try {
+      const keys = await this.getKeys();
       if (!keys || !keys.length) {
-        return cb(new JwksError('The JWKS endpoint did not contain any keys'));
+        throw new JwksError('The JWKS endpoint did not contain any keys');
       }
 
       const signingKeys = keys
@@ -69,29 +66,44 @@ export class JwksClient {
         });
 
       if (!signingKeys.length) {
-        return cb(new JwksError('The JWKS endpoint did not contain any signing keys'));
+        throw new JwksError('The JWKS endpoint did not contain any signing keys');
       }
 
       this.logger('Signing Keys:', signingKeys);
-      return cb(null, signingKeys);
-    });
+      if (typeof cb === 'function') {
+        return cb(null, signingKeys);
+      } else {
+        return signingKeys;
+      }
+    } catch (err) {
+      if (typeof cb === 'function') {
+        return cb(err);
+      } else {
+        throw err;
+      }
+    }
   }
 
-  getSigningKey = (kid, cb) => {
+  getSigningKey = async (kid, cb) => {
     this.logger(`Fetching signing key for '${kid}'`);
-
-    this.getSigningKeys((err, keys) => {
-      if (err) {
-        return cb(err);
-      }
-
+    try {
+      const keys = await this.getSigningKeys();
       const key = keys.find(k => k.kid === kid);
-      if (key) {
+      if (!key) {
+        this.logger(`Unable to find a signing key that matches '${kid}'`);
+        throw new SigningKeyNotFoundError(`Unable to find a signing key that matches '${kid}'`);
+      }
+      if (typeof cb === 'function') {
         return cb(null, key);
       } else {
-        this.logger(`Unable to find a signing key that matches '${kid}'`);
-        return cb(new SigningKeyNotFoundError(`Unable to find a signing key that matches '${kid}'`));
+        return key;
       }
-    });
+    } catch (err) {
+      if (typeof cb === 'function') {
+        return cb(err);
+      } else {
+        throw err;
+      }
+    }
   }
 }

@@ -8,8 +8,13 @@ declare module 'jwks-rsa' {
     class JwksClient {
       constructor(options: Options);
 
+      getKeys: () => Promise<Jwk[]>;
       getKeys: (cb: (err: Error, keys: Jwk[]) => any) => any;
+
+      getSigningKeys: () => Promise<Jwk[]>;
       getSigningKeys: (cb: (err: Error, keys: Jwk[]) => any) => any;
+
+      getSigningKey: (kid: string) => Promise<Jwk>;
       getSigningKey: (kid: string, cb: (err: Error, key: Jwk) => any) => any;
     }
 
@@ -30,6 +35,9 @@ declare module 'jwks-rsa' {
       strictSsl?: boolean;
       handleSigningKeyError?(err: Error, cb: (err: Error) => void): any;
     }
+
+    function getKey(uri: string): Promise<Jwk>;
+    function getKey(uri: string, cb: (err: Error, key: Jwk) => any): any;
 
     function expressJwtSecret(options: JwksRsa.Options): ExpressJwt.SecretCallback;
 
