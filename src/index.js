@@ -1,4 +1,7 @@
+import '@babel/polyfill';
+
 import { JwksClient } from './JwksClient';
+import getKey from './getKey';
 
 import * as errors from './errors';
 import { hapiJwt2Key, hapiJwt2KeyAsync } from './integrations/hapi';
@@ -8,6 +11,8 @@ import { koaJwtSecret } from './integrations/koa';
 module.exports = (options) => {
   return new JwksClient(options);
 };
+
+module.exports.getKey = getKey;
 
 module.exports.ArgumentError = errors.ArgumentError;
 module.exports.JwksError = errors.JwksError;

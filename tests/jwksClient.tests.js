@@ -61,12 +61,53 @@ describe('JwksClient', () => {
       });
 
       client.getKeys((err, keys) => {
-        expect(err).to.be.null;
+        try {
+          expect(err).to.be.null;
+          expect(keys).not.to.be.null;
+          expect(keys.length).to.equal(2);
+          expect(keys[1].kid).to.equal('123');
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
+    it('(async) should return keys', async () => {
+      nock(jwksHost)
+        .get('/.well-known/jwks.json')
+        .reply(200, {
+          keys: [
+            {
+              alg: 'RS256',
+              kty: 'RSA',
+              use: 'sig',
+              x5c: [
+                'pk1'
+              ],
+              kid: 'ABC'
+            },
+            {
+              alg: 'RS256',
+              kty: 'RSA',
+              use: 'sig',
+              x5c: [],
+              kid: '123'
+            }
+          ]
+        });
+
+      const client = new JwksClient({
+        jwksUri: `${jwksHost}/.well-known/jwks.json`
+      });
+
+      try {
+        const keys = await client.getKeys();
         expect(keys).not.to.be.null;
         expect(keys.length).to.equal(2);
         expect(keys[1].kid).to.equal('123');
-        done();
-      });
+      } catch (err) {
+        expect(err).to.be.null;
+      }
     });
   });
 

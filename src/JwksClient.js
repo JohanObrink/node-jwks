@@ -21,28 +21,31 @@ export class JwksClient {
     }
   }
 
-  getKeys(cb) {
+  async getKeys(cb) {
     this.logger(`Fetching keys from '${this.options.jwksUri}'`);
-    axios
-      .get(this.options.jwksUri, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-      .then(res => {
-        this.logger('Keys:', res.data.keys);
-        return cb(null, res.data.keys);
-      })
-      .catch(err => {
-        if (err.response) {
-          const message = (err.response.data || `Http Error ${err.response.statusCode}`)
-            || err.message;
-          return cb(new JwksError(message));
-        } else {
-          return cb(err);
-        }
-      });
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      const { data } = await axios.get(this.options.jwksUri, { headers });
+      if (typeof cb === 'function') {
+        cb(null, data.keys);
+      } else {
+        return data.keys;
+      }
+    } catch (err) {
+      if (err.response) {
+        const message = (err.response.data || `Http Error ${err.response.statusCode}`)
+          || err.message;
+        err = new JwksError(message);
+      }
+      if (typeof cb === 'function') {
+        cb(err);
+      } else {
+        throw err;
+      }
+    }
   }
 
   getSigningKeys(cb) {
